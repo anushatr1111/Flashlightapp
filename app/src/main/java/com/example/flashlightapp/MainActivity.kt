@@ -3,10 +3,13 @@ package com.example.flashlightapp
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,8 +58,16 @@ fun FlashlightApp() {
         )
         Button(
             onClick = {
-                isFlashlightOn = !isFlashlightOn
-                toggleFlashlight(context, isFlashlightOn)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    isFlashlightOn = !isFlashlightOn
+                    toggleFlashlight(context, isFlashlightOn)
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Flashlight requires Android 6.0 (Marshmallow) or higher",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         ) {
             Text(if (isFlashlightOn) "Turn OFF" else "Turn ON")
@@ -64,6 +75,7 @@ fun FlashlightApp() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.M)
 private fun toggleFlashlight(context: Context, enable: Boolean) {
     val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     try {
@@ -76,6 +88,7 @@ private fun toggleFlashlight(context: Context, enable: Boolean) {
         }
     } catch (e: Exception) {
         e.printStackTrace()
+        // You might want to show a Toast here about the error
     }
 }
 
